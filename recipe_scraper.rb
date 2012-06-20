@@ -22,32 +22,42 @@ class WebScrapRecipe
 	page.css('div#sitenav')[0]
 	recipeIndexUrl = page.css('div#sitenav a' )[2].attribute("href")
 	
-	itemPage = Nokogiri::HTML(open(recipeIndexUrl))
-		
+	def self.url(path)
+		return Nokogiri::HTML(open(path))
+	end
+
+
+	def self.insertToDatabase(title,description,ingredient,method)
+		scraplink = Webscrap.new(:title=>title,:description=>description,:ingredient=>ingredient,:method=>method)
+		scraplink.save	
+	end
+	
+
+	def self.getData(itemDesc)
+ 		title=itemDesc.search("//div[@id='entry-individual']/div[2]/span/h1").text
+		description=itemDesc.search("//div[@id='recipe-intro']/p").text
+		ingredient=itemDesc.search("//div[@id='recipe-ingredients']").text
+		method=itemDesc.search("//div[@id='recipe-method']").text
+	
+		insertToDatabase(title,description,ingredient,method)
+	end
+
+	itemPage = url(recipeIndexUrl)
+
 	arrayOfLink=[]
 	arrayOfInnerLink=[]
 	
 	itemPage.search("//div[@id='content']//div[@class='center-module']/p/a").each{|x| arrayOfLink.push(x.attribute("href")) }
 	
-	
-	
 	for i in 0..10
-		innerUrl = Nokogiri::HTML(open(arrayOfLink[i]))
+		innerUrl = url(arrayOfLink[i])
 		innerUrl.search("//div[@id='content']//div[@class='archive-entry-title']/a").each{|x| arrayOfInnerLink.push(x.attribute("href")) }
-
 	end
 	
 	
 	for i in 0..20
-		itemDesc = Nokogiri::HTML(open(arrayOfInnerLink[i]))
-		
-		title=itemDesc.search("//div[@id='entry-individual']/div[2]/span/h1").text
-		description=itemDesc.search("//div[@id='recipe-intro']/p").text
-		ingredient=itemDesc.search("//div[@id='recipe-ingredients']").text
-		method=itemDesc.search("//div[@id='recipe-method']").text
-		
-		scraplink = Webscrap.new(:title=>title,:description=>description,:ingredient=>ingredient,:method=>method)
-		scraplink.save
+		itemDesc = url(arrayOfInnerLink[i])
+		getData(itemDesc)
 	end
 	
 end
