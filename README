@@ -1,0 +1,12 @@
+Name : Unnati S. Patil
+
+This folder contains :
+	1) recipeScraper.rb : Ruby file which scraps the web page and retrive information from that and fetch it to the database.
+	2) README file
+
+
+How to run:
+	$ ruby recipeScraper.rb
+
+
+
